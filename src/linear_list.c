@@ -27,11 +27,18 @@
  */
 int InitList(LINEAR_LIST_STR **ppList)
 {
-	*ppList = (LINEAR_LIST_STR *)malloc(sizeof(LINEAR_LIST_STR));
+	if(NULL != *ppList)
+	{
+		printf("Current Pointer is not NULL!\n\r");
+	}
+	else
+	{
+		*ppList = (LINEAR_LIST_STR *)malloc(sizeof(LINEAR_LIST_STR));
+	}
 
 	if(NULL == *ppList)
 	{
-		printf("Memory Allocation Failed for *pLa!\n\r");
+		printf("Memory Allocation Failed for *ppList!\n\r");
 		return -1;
 	}
 
@@ -66,7 +73,8 @@ int IsListEmpty(LINEAR_LIST_STR *pList)
 }
 
 /*
- *
+ *	Description:
+ *	函数返回形参线性表的长度;
  */
 UINT32 GetListLength(LINEAR_LIST_STR *pList)
 {
@@ -74,10 +82,44 @@ UINT32 GetListLength(LINEAR_LIST_STR *pList)
 }
 
 /*
+ *	Param:
+ *	pList:		线性表指针;
+ *	n:			待取值元素位序;
+ *	pElement:	待赋值元素指针;(用于传回所需元素值)
+ *	
+ *	Description:
+ *	1.函数将形参线性表中指定位序的元素值赋值给 pelement;
+ *
+ *	Return:
+ *	-1:	访问位序值不合理;
+ *	0:	元素按位序取值成功;
+ */
+UINT32 GetListElement(LINEAR_LIST_STR *pList, UINT32 n, UINT8 *pElement)
+{
+	if((1 > n) && (n > pList->listLength))
+	{
+		printf("Error, Current List Length is: %d; \'n\'=%d is out of value!\n\r", pList->listLength, n);
+		return -1;
+	}
+
+	*pElement = pList->listElement[--n];
+	return 0;
+}
+
+
+/*
+ *	Param:
+ *	pList:		线性表指针;
+ *	element:	待查询元素;
+ *	
  *	Description:
  *	1.返回线性表中第一个与 element 值相同的元素的位序;
  *	2.若线性表中不存在这样的元素，则返回值为0;
  *
+ *	Return:
+ *	0:	形参线性表中无待查元素值;
+ *	!0:	形参线性表中与待查元素值相同的元素位序;
+ *	
  *	Note:
  *	起始元素的位序为1;
  */
@@ -180,7 +222,12 @@ UINT32 ElementInsert(LINEAR_LIST_STR *pList, UINT32 n, UINT8 element)
 	return pList->listLength;
 }
 
+
 /*
+ *	Param:
+ *	pListA:		形参线性表指针;(数据合并到此线性表中)
+ *	pListB:		形参线性表指针;
+ *	
  *	Description:
  *	1.根据形参的线性表: pLa, pLb 合并得到新的线性表 pLa = pLa U pLb;
  *	2.从 pLb 中取一个数据元素;
@@ -191,144 +238,166 @@ UINT32 ElementInsert(LINEAR_LIST_STR *pList, UINT32 n, UINT8 element)
  *	Return:
  *	函数返回合并后的线性表的长度;
  */
-UINT32 LinearListUnion(LINEAR_LIST_STR *pLa, LINEAR_LIST_STR *pLb)
+UINT32 LinearListUnion(LINEAR_LIST_STR *pListA, LINEAR_LIST_STR *pListB)
 {
 	UINT8 tempElement;
 	UINT32 listLength;
 
-	while(!IsListEmpty(pLb))
+	while(!IsListEmpty(pListB))
 	{
-		listLength = GetListLength(pLa);
-		ElementDelete(pLb, 1, &tempElement);
+		listLength = GetListLength(pListA);
+		ElementDelete(pListB, 1, &tempElement);
 
-		if(!ElementLocate(pLa, tempElement))
+		if(!ElementLocate(pListA, tempElement))
 		{
-			ElementInsert(pLa, listLength+1, tempElement);
+			ElementInsert(pListA, listLength+1, tempElement);
 		}
 	}
 
-	return pLa->listLength;
+	return pListB->listLength;
+}
+
+/*
+ *	Param:
+ *	pListA:		形参线性表指针;(保存处理结果)	
+ *	pListB:		形参线性表指针;(提供原始数据)
+ *	
+ *	Description:
+ *	1.每次从 pListB 中取出一个元素;
+ *	2.根据取出的元素在 pListA 中进行查询;
+ *	3.若 pListA 中不存在与其值相同的元素，则将该元素插入 pListA 尾部;
+ *	4.重复上述操作至 pListB 中所有元素查询完毕;
+ *	
+ *	Return:
+ *	0:	数据线性表内容为空;
+ *	!0:	函数返回处理后的线性表长度;
+ */
+UINT32 LinearListPurge(LINEAR_LIST_STR *pListA, LINEAR_LIST_STR *pListB)
+{
+	UINT32  i;
+
+	if(0 == pListB->listLength)
+	{
+		return 0;
+	}
+
+	for(i=0; i<pListB->listLength; i++)
+	{
+		if(!ElementLocate(pListA, pListB->listElement[i]))
+		{
+			ElementInsert(pListA, pListA->listLength+1, pListB->listElement[i]);
+		}
+	}
+
+	return pListA->listLength;
+}
+
+
+/*
+ *	Param:
+ *	pListA:	形参线性表指针;
+ *	pListB:	形参线性表指针;
+ *
+ *	Description:
+ *	1.依次对比两个线性表内同一位序的元素值
+ *
+ *	Return:
+ *	-1:		pListA < pListB;
+ *	0:		pListA == pListB;
+ *	1:		pListA > pListB;
+ */
+int LinearCompare(LINEAR_LIST_STR *pListA, LINEAR_LIST_STR *pListB)
+{
+	int i = 0;
+	
+	if((0 == pListA->listLength) || (0 == pListB->listLength))
+	{
+		if(0 != pListB->listLength)
+			return -1;
+		else if(0 != pListA->listLength)
+			return 1;
+		else
+			return 0;
+	}
+
+	while((i < pListA->listLength) && (i < pListB->listLength))
+	{
+		if(pListA->listElement[i] < pListB->listElement[i])
+			return -1;
+		else if(pListA->listElement[i] > pListB->listElement[i])
+			return 1;
+
+		i++;
+	}
+
+	if(pListA->listLength == pListB->listLength)
+		return 0;
+	else if(pListA->listLength < pListB->listLength)
+		return -1;
+	else
+		return 1;
 }
 
 
 int LinearTest(void)
 {
 	int i;
-	UINT8 element;
 
 	LINEAR_LIST_STR *pLa = NULL;
 	LINEAR_LIST_STR **ppLa = &pLa;
 	LINEAR_LIST_STR *pLb = NULL;
 	LINEAR_LIST_STR **ppLb = &pLb;
 
-	InitList(ppLa);
-	InitList(ppLb);
-
-	//printf("Address of pLa: 0x%X\n\r", (UINT32)pLa);
-	//printf("Address of pLb: 0x%X\n\r", (UINT32)pLb);
+	//	若内存动态分配失败，则函数退出;
+	if(InitList(ppLa) || InitList(ppLb))
+	{
+		printf("Memory Location Failed!\n\r");
+		return -1;
+	}
 
 	for(i=0; i<26; i++)
 	{
-		pLa->listElement[i] = 'a'+i;
-		pLb->listElement[i] = 'A'+i;
-		pLa->listLength = i+1;
-		pLb->listLength = i+1;
+		pLa->listElement[pLa->listLength++] = 'a'+i;		
+		pLb->listElement[pLb->listLength++] = 'a'+i;
 	}
 
-	//	判断线性表是否为空;
-	if(IsListEmpty(pLa))
-	{
-		printf("pLa is Empty!\n\r");
-	}
-	if(IsListEmpty(pLa))
-	{
-		printf("pLb is Empty!\n\r");
-	}
+	pLa->listElement[pLa->listLength++] = 'Q';
+	//pLb->listElement[pLb->listLength++] = 'Q';
 
-	//	线性表长度查询;
-	printf("Length of listA: %d\n\rLength of listB: %d\n\r", \
-		   GetListLength(pLa), \
-		   GetListLength(pLb));
-
-	//	线性表元素位序查询;
-	printf("Serial Number of \'q\' in listA is: %d\n\rSerial Number of \'Q\' in listB is: %d\n\r", \
-		   ElementLocate(pLa, 'q'), \
-		   ElementLocate(pLb, 'Q'));
-
-	//	线性表元素删除;
-	printf("Before ElementDelete ListA:\n\r");
-	for(i=0; i<pLa->listLength; i++)
-	{
-		printf("%c", pLa->listElement[i]);
-	}
-	printf("\n\r");
-	ElementDelete(pLa, 17, &element);
-	printf("Deleted Element: %c\n\r", element);
-	printf("After ElementDelete ListA:\n\r");
+	printf("pListA(%d): ", pLa->listLength);
 	for(i=0; i<pLa->listLength; i++)
 	{
 		printf("%c", pLa->listElement[i]);
 	}
 	printf("\n\r");
 
-	//	线性表元素插入;
-	printf("After ElementInsert ListA:\n\r");
-	ElementInsert(pLa, 17, element);
-	for(i=0; i<pLa->listLength; i++)
-	{
-		printf("%c", pLa->listElement[i]);
-	}
-	printf("\n\r");
-
-	//	线性表合并;
-	printf("Before LinearListUnion listA(%d): ", GetListLength(pLa));
-	for(i=0; i<pLa->listLength; i++)
-	{
-		printf("%c", pLa->listElement[i]);
-	}
-	printf("\n\r");
-
-	printf("Before LinearListUnion listB(%d): ", GetListLength(pLb));
+	printf("pListA(%d): ", pLb->listLength);
 	for(i=0; i<pLb->listLength; i++)
 	{
 		printf("%c", pLb->listElement[i]);
 	}
 	printf("\n\r");
 
-#if 1
-	printf("After LinearListUnion:\n\rlistB(%d)\n\rlistA(%d): ", \
-		   GetListLength(pLb), \
-		   LinearListUnion(pLa, pLb));
-	for(i=0; i<pLa->listLength; i++)
+	switch(LinearCompare(pLa, pLb))
 	{
-		printf("%c", pLa->listElement[i]);
+		case -1:
+			printf("ListA < ListB\n\r");
+			break;
+		case 0:
+			printf("ListA == ListB\n\r");
+			break;
+		case 1:
+			printf("ListA > ListB\n\r");
+			break;
+		default:
+			break;
 	}
-	printf("\n\r");
-#else
-	printf("After LinearListUnion:\n\rlistA(%d)\n\rlistB(%d): ", \
-		   GetListLength(pLa), \
-		   LinearListUnion(pLb, pLa));
-	for(i=0; i<pLb->listLength; i++)
-	{
-		printf("%c", pLb->listElement[i]);
-	}
-	printf("\n\r");
-#endif
 
 	//	释放动态分配的内存并将原指向动态分配内存的指针赋值为空指针;
 	DestroyList(ppLa);
 	DestroyList(ppLb);
 
-#if 0
-	printf("Address of pLa: 0x%X\n\r", (UINT32)pLa);
-	printf("Address of pLb: 0x%X\n\r", (UINT32)pLb);
-
-	pLa->listLength = 100;
-	pLb->listLength = 100;
-	printf("Length A: %d\n\rLength B: %d\n\r", \
-		   pLa->listLength, \
-		   pLb->listLength);
-#endif
+	return 0;
 }
 
 

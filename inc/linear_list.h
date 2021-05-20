@@ -32,9 +32,11 @@ UINT32 ElementDelete(LINEAR_LIST_STR *pList, UINT32 n, UINT8 *pElement);
 UINT32 ElementLocate(LINEAR_LIST_STR *pList, UINT8 element);
 UINT32 ElementInsert(LINEAR_LIST_STR *pList, UINT32 n, UINT8 element);
 UINT32 LinearListUnion(LINEAR_LIST_STR *pLa, LINEAR_LIST_STR *pLb);
+int LinearCompare(LINEAR_LIST_STR *pListA, LINEAR_LIST_STR *pListB);
 int LinearTest(void);
 
-#endif			//	End of LINEAR_LIST_H
+#endif			//	End of LINEAR_LIST_H
+
 
 
 
