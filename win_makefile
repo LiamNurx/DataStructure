@@ -1,0 +1,59 @@
+#########################################################################################
+#	FileName:		Makefile
+#	Author:			LiamNurx
+#	Update:			2021.05	
+#
+#	Description:
+#	
+#########################################################################################
+
+#	Note:
+#	在使用 .bat 文件执行 Make 时，若出现类似如下的异常:
+#	"make: Interrupt/Exception caught (code = 0xc00000fd, addr = 0x425073)"
+#	则需要使用如下声明：
+SHELL = C:/Windows/System32/cmd.exe
+#	End of Note!
+
+TARGET = DataStructure
+
+APPPATH = ./app
+SRCPATH = ./src
+INCPATH = ./inc
+LIBPATH = ./lib
+
+PATHINC += -I $(INCPATH)
+PATHINC += -I $(LIBPATH)
+
+APPOBJECT += $(APPPATH)/main.o
+
+SRCOBJECT += $(SRCPATH)/linear_list.o
+
+LIBOBJECT += $(LIBPATH)/function_lib.o
+
+ALLOBJECT += $(APPOBJECT)
+ALLOBJECT += $(SRCOBJECT)
+ALLOBJECT += $(LIBOBJECT)
+
+$(TARGET) : $(ALLOBJECT)
+	gcc -o $(TARGET) $^
+	@echo !****************************************************************!
+	@echo -- Compiled Success!
+	@echo -- Excuting -make clean- to delete all *.o files right now?
+	@echo !****************************************************************!
+
+%.o : %.c
+	gcc -c $(PATHINC) -o $@ $<
+
+.PHONY: clean rm
+
+clean:
+	rm -rf $(APPPATH)/*.o
+	rm -rf $(SRCPATH)/*.o
+	rm -rf $(LIBPATH)/*.o
+
+rm:
+	rm -rf $(TARGET)
+	rm -rf $(APPPATH)/*.o
+	rm -rf $(SRCPATH)/*.o
+	rm -rf $(LIBPATH)/*.o
+
