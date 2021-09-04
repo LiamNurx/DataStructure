@@ -94,7 +94,7 @@ UINT32 GetListLength(LINEAR_LIST_STR *pList)
  *	-1:	访问位序值不合理;
  *	0:	元素按位序取值成功;
  */
-UINT32 GetListElement(LINEAR_LIST_STR *pList, UINT32 n, UINT8 *pElement)
+UINT32 GetListElement(LINEAR_LIST_STR *pList, UINT32 n, UINT08 *pElement)
 {
 	if((1 > n) && (n > pList->listLength))
 	{
@@ -123,7 +123,7 @@ UINT32 GetListElement(LINEAR_LIST_STR *pList, UINT32 n, UINT8 *pElement)
  *	Note:
  *	起始元素的位序为1;
  */
-UINT32 ElementLocate(LINEAR_LIST_STR *pList, UINT8 element)
+UINT32 ElementLocate(LINEAR_LIST_STR *pList, UINT08 element)
 {
 	int i;
 	
@@ -154,7 +154,7 @@ UINT32 ElementLocate(LINEAR_LIST_STR *pList, UINT8 element)
  *	Return:
  *	函数返回线性表长度;
  */
-UINT32 ElementDelete(LINEAR_LIST_STR *pList, UINT32 n, UINT8 *pElement)
+UINT32 ElementDelete(LINEAR_LIST_STR *pList, UINT32 n, UINT08 *pElement)
 {
 	int j;
 
@@ -193,7 +193,7 @@ UINT32 ElementDelete(LINEAR_LIST_STR *pList, UINT32 n, UINT8 *pElement)
  *	Return:
  *	函数返回当前线性表长度;
  */
-UINT32 ElementInsert(LINEAR_LIST_STR *pList, UINT32 n, UINT8 element)
+UINT32 ElementInsert(LINEAR_LIST_STR *pList, UINT32 n, UINT08 element)
 {
 	int i;
 
@@ -240,7 +240,7 @@ UINT32 ElementInsert(LINEAR_LIST_STR *pList, UINT32 n, UINT8 element)
  */
 UINT32 LinearListUnion(LINEAR_LIST_STR *pListA, LINEAR_LIST_STR *pListB)
 {
-	UINT8 tempElement;
+	UINT08 tempElement;
 	UINT32 listLength;
 
 	while(!IsListEmpty(pListB))
@@ -355,6 +355,7 @@ int LinearTest(void)
 		return -1;
 	}
 
+#if 1
 	for(i=0; i<26; i++)
 	{
 		pLa->listElement[pLa->listLength++] = 'a'+i;		
@@ -362,7 +363,8 @@ int LinearTest(void)
 	}
 
 	pLa->listElement[pLa->listLength++] = 'Q';
-	//pLb->listElement[pLb->listLength++] = 'Q';
+	pLb->listElement[pLb->listLength++] = 'Q';
+#endif
 
 	printf("pListA(%d): ", pLa->listLength);
 	for(i=0; i<pLa->listLength; i++)

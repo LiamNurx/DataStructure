@@ -12,7 +12,8 @@
 #ifndef			FUNCTION_LIB_H
 #define			FUNCTION_LIB_H
 
-void FunctionLib(void);
+int* TwoSum(int* nums, int numsSize, int target, int* returnSize);
+void TwoSumTest(void);
 
 #endif			//	End of "FUNCTION_LIB_H"
 
